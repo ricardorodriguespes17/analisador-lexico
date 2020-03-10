@@ -6,7 +6,7 @@ body, html {
 }
 
 table {
-    background-color: #AAA;
+    background-color: #DDD;
     width: 50%;
     border: solid black;
 }
@@ -29,6 +29,8 @@ table {
     min-width: 50%;
     min-height: 80%;
     padding: 5px 10px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 20px;
 }
 
 .switchBox {

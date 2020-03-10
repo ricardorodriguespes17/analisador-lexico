@@ -1,39 +1,25 @@
 import React, { useState } from 'react'
 import Switch from 'react-input-switch'
 import './App.css'
-import tokens from './Tokens'
+import analyzer from './Analyzer'
 
 function App() {
 
+	//constante para mudar o tema do editor de texto
 	const [theme, setTheme] = useState(0)
+	//constante para mudar código digitado no editor
 	const [code, setCode] = useState('')
-	const [lexemas, setLexemas] = useState([])
+	//constante para mudar a lista de lexemas encontrados
+	const [lexemes, setLexemes] = useState([])
+	//constante para mudar a visibilidade da tabela
 	const [showTable, setShowTable] = useState(false)
 
-	function analise() {
-		//verifica se o codigo (sem espaços) é vazio e cancela a analise caso for
-		if (code.trim() === '')
-			return
+	function onAnalyzer(){
+		//chama o analisador que retornará uma lista de lexemas encontrados
+		var lexemesFound = analyzer(code)
 
-		//separa o texto em uma lista de palavras
-		var words = code.replace('\n', ' ')
-			.split(' ')
-			.filter(item => item !== '')
-		console.log(words)
-
-		//mapeia a lista de palavras e detecta os tokens
-		var newLexemas = []
-		words.map(word => {
-			tokens.map(item => {
-				if (item.lexema === word) {
-					newLexemas.push(item)
-				}
-				return item
-			})
-			return word
-		})
 		//coloca os novos lexemas para ser setados na tabela
-		setLexemas(newLexemas)
+		setLexemes(lexemesFound)
 
 		//muda a visibilidade da tabela
 		setShowTable(true)
@@ -41,7 +27,7 @@ function App() {
 
 	return (
 		<div className="container">
-			<h2>Análisador léxico</h2>
+			<h2>Analisador léxico</h2>
 			<div className="switchBox">
 				<text>Tema </text>
 				<Switch styles={styles.switch} value={theme} onChange={setTheme} />
@@ -51,7 +37,7 @@ function App() {
 				value={code}
 				onChangeCapture={(event) => setCode(event.target.value)}
 				style={theme === 1 ? styles.darkTheme : styles.lightTheme} ></textarea>
-			<button className="buttonAnalise" onClick={analise}>
+			<button className="buttonAnalise" onClick={onAnalyzer}>
 				<text>Analisar</text>
 			</button>
 			<table hidden={!showTable}>
@@ -63,7 +49,7 @@ function App() {
 						<b>TOKEN</b>
 					</td>
 				</tr>
-				{lexemas.length !== 0 ? null : (
+				{lexemes.length !== 0 ? null : (
 					<tr>
 						<tr>
 							<td>
@@ -72,10 +58,10 @@ function App() {
 						</tr>
 					</tr>
 				)}
-				{lexemas.map(item => {
+				{lexemes.map(item => {
 					return <tr key={item.id}>
 						<td>
-							{item.lexema}
+							{item.lexeme}
 						</td>
 						<td>
 							{item.token}

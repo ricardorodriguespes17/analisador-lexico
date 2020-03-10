@@ -1,4 +1,5 @@
 export default [
-    { id: 0, lexema: '3', token: 'INTEIRO' },
-    { id: 1, lexema: ':=', token: 'ATRIBUIÇÃO' }
+    //EXEMPLOS
+    { id: 0, lexeme: '3', token: 'INTEIRO' },
+    { id: 1, lexeme: ':=', token: 'ATRIBUIÇÃO' }
 ]
