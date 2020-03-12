@@ -6,7 +6,7 @@ import analyzer from './Analyzer'
 function App() {
 
 	//constante para mudar o tema do editor de texto
-	const [theme, setTheme] = useState(0)
+	const [theme, setTheme] = useState(1)
 	//constante para mudar código digitado no editor
 	const [code, setCode] = useState('')
 	//constante para mudar a lista de lexemas encontrados
