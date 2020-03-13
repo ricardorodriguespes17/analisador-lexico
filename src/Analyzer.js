@@ -26,13 +26,13 @@ function stateMachine(state, letters, position, lexeme) {
 
     //expressoes regulares para fazer comparacoes
     var numbers = RegExp('[0-9]')
-    var especialsSimbols = RegExp('[>|=|<|,|;]')
+    var especialsSimbols = RegExp('[>|=|<|,|;|(|)]')
     var aritmeticOperator = RegExp('[+|-|*|/]')
 
     //letter recebe a letra da posicao lida
     var letter = letters[position]
     // console.log('Letra: ' + letter + '\nLexema: ' + lexeme)
-    // console.log('Estado ' + state + "\nLetra: " + letter)
+    console.log('Estado ' + state + "\nLetra: " + letter)
 
 
     //switch do estado atual
@@ -45,9 +45,8 @@ function stateMachine(state, letters, position, lexeme) {
 
             if (numbers.test(letter)) {
                 //caso reconheca um numero, vai para o estado 1
-                lexeme = letter
-                return stateMachine(1, letters, position + 1, lexeme)
-            } else if (especialsSimbols.test(letter) || aritmeticOperator.test(letter)) {
+                return stateMachine(1, letters, position + 1, letter)
+            } else if (especialsSimbols.test(letter) || aritmeticOperator.test(letter) || letter === ':') {
                 //caso reconheca um simbolo especial, vai para o estado 5
                 return stateMachine(5, letters, position, lexeme)
             } else if (letter === '"') {
@@ -56,6 +55,9 @@ function stateMachine(state, letters, position, lexeme) {
             } else if (letter === "'") {
                 //caso reconheca uma aspa simples, vai para o estado 7
                 return stateMachine(7, letters, position + 1, letter)
+            } else if (letter === '.') {
+                //caso reconheca um ponto (sem ser no numero real), reconheceu o fim do programa
+                return [{ token: tokens.FIM, lexeme: letter }]
             } else {
                 //nenhum dos casos, nao reconhecido, tenta reconhecer o proximo
                 return stateMachine(0, letters, position + 1, "")
@@ -90,15 +92,13 @@ function stateMachine(state, letters, position, lexeme) {
                 No caso de ter reconhecido um numero real
             */
 
-            lexeme += letter
-
             if (numbers.test(letter)) {
                 lexeme += letter
                 return stateMachine(2, letters, position + 1, lexeme)
             } else if (letter === 'e') {
                 lexeme += letter
                 return stateMachine(3, letters, position + 1, lexeme)
-            } else if (['>', '=', '<', '+', '-', '*', '/', ',', ';', '(', ')'].filter(num => num === letter).length === 1) {
+            } else if (especialsSimbols.test(letter) || aritmeticOperator.test(letter)) {
                 return [{ token: tokens.NUMERO_REAL, lexeme }].concat(stateMachine(5, letters, position, letter))
             } else if (letter === ' ') {
                 return [{ token: tokens.NUMERO_INTEIRO, lexeme }].concat(stateMachine(0, letters, position + 1, letter))
@@ -111,7 +111,7 @@ function stateMachine(state, letters, position, lexeme) {
                 ESTADO 3
                 No caso reconhecer o 'e' de um numero real
             */
-            
+
             if (letter === '-' || letter === '+') {
                 lexeme += letter
                 return stateMachine(4, letters, position + 1, lexeme)
@@ -133,22 +133,32 @@ function stateMachine(state, letters, position, lexeme) {
         case 5:
             /*
                 ESTADO 5
-                No caso de encontrarem um simbolo especial
+                No caso de encontrar um simbolo especial
             */
 
-            if (especialsSimbols.test(letter)) {
+            lexeme += letter
+
+            if (letter === '<' || letter === '>') {
+                //caso encontrar um '<' ou '>, vai para o estado 9
+                return stateMachine(9, letters, position + 1, lexeme)
+            } else if (letter === ':') {
+                //caso encontrar um ':', vai para o estado 10
+                return stateMachine(10, letters, position + 1, lexeme)
+            } else if (letter === '=' || letter === ',' || letter === ';' || letter === '(' || letter === ')') {
+                //caso encontrar um '=' ou ',' ou ';' ou '(' ou ')', reconhece simbolo especial, volta para o estado 0
                 return [{ token: tokens.SIMBOLO_ESPECIAL, lexeme: letter }].concat(stateMachine(0, letters, position + 1, ""))
+            } else if (letter === '/') {
+                //caso encontrar um '/', vai para o estado 11
+                return stateMachine(11, letters, position + 1, letter)
             } else if (aritmeticOperator.test(letter)) {
                 return [{ token: tokens.OPERADOR_ARITMETICO, lexeme: letter }].concat(stateMachine(0, letters, position + 1, ""))
             } else {
                 return stateMachine(0, letters, position + 1, "")
             }
-
-
         case 6:
             /*
                 ESTADO 6
-                No caso de encontrarem uma aspa dupla
+                No caso de encontrar uma aspa dupla
             */
 
             lexeme += letter
@@ -161,7 +171,7 @@ function stateMachine(state, letters, position, lexeme) {
         case 7:
             /*
                 ESTADO 7
-                No caso de encontrarem uma aspa simples
+                No caso de encontrar uma aspa simples
             */
 
             lexeme += letter
@@ -174,18 +184,83 @@ function stateMachine(state, letters, position, lexeme) {
         case 8:
             /*
                 ESTADO 8
-                No caso de encontrarem um char depois da aspa simples
+                No caso de encontrar um char depois da aspa simples
             */
 
             lexeme += letter
 
-            if(letter === "'"){
+            if (letter === "'") {
                 return [{ token: tokens.CARACTERE, lexeme }].concat(stateMachine(0, letters, position + 1, ""))
             } else {
                 return stateMachine(0, letters, position + 1, "")
             }
 
-            
+        case 9:
+            /*
+                ESTADO 9
+                No caso de encontrar um '>' ou '<'
+            */
+
+            if (letter === '=') {
+                lexeme += letter
+                return [{ token: tokens.OPERADOR_RELACIONAL, lexeme }].concat(stateMachine(0, letters, position + 1, ""))
+            } else {
+                return [{ token: tokens.OPERADOR_RELACIONAL, lexeme }].concat(stateMachine(0, letters, position, ""))
+            }
+        case 10:
+            /*
+                ESTADO 10
+                No caso de encontrar um ':'
+                para tentar reconhecer um comando de atribuicao
+            */
+
+            lexeme += letter
+
+            if (letter === '=') {
+                return [{ token: tokens.ATRIBUICAO, lexeme }].concat(stateMachine(0, letters, position + 1, ""))
+            } else {
+                return stateMachine(0, letters, position + 1, "")
+            }
+        case 11:
+            /*
+                ESTADO 11
+                No caso de encontrar um algo apos '/'
+                para tentar reconhecer um comentario
+            */
+
+
+
+            if (letter === '*') {
+                return stateMachine(12, letters, position + 1, "")
+            } else {
+                return [{ token: tokens.OPERADOR_ARITMETICO, lexeme: '/' }].concat(stateMachine(0, letters, position + 1, ""))
+            }
+        case 12:
+            /*
+                ESTADO 12
+                No caso de encontrar um '*' apos '/' (inicio de comentario)
+                para tentar reconhecer um comentario
+            */
+
+            if (letter === '*') {
+                return stateMachine(13, letters, position + 1, "")
+            } else {
+                return stateMachine(12, letters, position + 1, "")
+            }
+        case 13:
+            /*
+                ESTADO 13
+                No caso de encontrar um '*' dentro de um comentario
+                para tentar reconhecer um comentario
+            */
+
+            if (letter === '/') {
+                return stateMachine(0, letters, position + 1, "")
+            } else if (letter === '*') {
+                return stateMachine(13, letters, position + 1, "")
+            } else {
+                return stateMachine(12, letters, position + 1, "")
+            }
         default:
             //estado morte
             return []
