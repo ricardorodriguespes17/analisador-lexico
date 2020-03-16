@@ -211,15 +211,15 @@ function stateMachine(state, letters, position, lexeme) {
             /*
                 ESTADO 10
                 No caso de encontrar um ':'
-                para tentar reconhecer um comando de atribuicao
+                para tentar reconhecer um comando de atribuicao (:=) ou simbolo especial (:)
             */
 
-            lexeme += letter
-
-            if (letter === '=') {
+           
+           if (letter === '=') {
+                lexeme += letter
                 return [{ token: tokens.ATRIBUICAO, lexeme }].concat(stateMachine(0, letters, position + 1, ""))
             } else {
-                return stateMachine(0, letters, position + 1, "")
+                return [{ token: tokens.SIMBOLO_ESPECIAL, lexeme}].concat(stateMachine(0, letters, position + 1, ""))
             }
         case 11:
             /*

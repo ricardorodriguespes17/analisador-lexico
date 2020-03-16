@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Switch from 'react-input-switch'
 import './App.css'
 import analyzer from './Analyzer'
@@ -13,6 +13,10 @@ function App() {
 	const [lexemes, setLexemes] = useState([])
 	//constante para mudar a visibilidade da tabela
 	const [showTable, setShowTable] = useState(false)
+
+	useEffect(() => {
+		document.title = 'Analisador Léxico'
+	}, [])
 
 	function onAnalyzer(){
 		//chama o analisador que retornará uma lista de lexemas encontrados
