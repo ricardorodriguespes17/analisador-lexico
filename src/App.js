@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import Switch from 'react-input-switch'
 import './App.css'
-import analyzer from './Analyzer'
+import lexAnalyze from './utils/lexAnalyze'
+import sintaxAnalyze from './utils/sintaxAnalyze'
 
 function App() {
 
@@ -13,15 +14,23 @@ function App() {
 	const [lexemes, setLexemes] = useState([])
 	//constante para mudar a visibilidade da tabela
 	const [showTable, setShowTable] = useState(false)
-
-	useEffect(() => {
-		document.title = 'Analisador Léxico'
-	}, [])
+	//constante para mostrar se há erro de digitacao
+	const [codeError, setCodeError] = useState(false);
 
 	function onAnalyzer(){
-		//chama o analisador que retornará uma lista de lexemas encontrados
-		var lexemesFound = analyzer(code)
+		if(code === "") {
+			setCodeError(true);
+			setTimeout(() => setCodeError(false), 2500);
+			return;
+		}
 
+		//chama o analisador que retornará uma lista de lexemas encontrados
+		var lexemesFound = lexAnalyze(code)
+
+		var sintax = sintaxAnalyze(lexemesFound);
+
+		console.log(sintax)
+		
 		//coloca os novos lexemas para ser setados na tabela
 		setLexemes(lexemesFound)
 
@@ -32,60 +41,50 @@ function App() {
 	return (
 		<div className="container">
 			<h2>Analisador léxico</h2>
+
 			<div className="switchBox">
-				<text>Tema </text>
+				<label>Tema </label>
 				<Switch styles={styles.switch} value={theme} onChange={setTheme} />
 			</div>
-			<text>Digite o código em Pascal no campo abaixo:</text>
-			<textarea className="codeSpace"
+
+			<label className="label-code">Digite o código em Pascal no campo abaixo:</label>
+			<textarea 
+				className={`code-space${codeError ? " error" : ""}${theme === 1 ? " dark" : ""}`}
 				value={code}
-				onChangeCapture={(event) => setCode(event.target.value)}
-				style={theme === 1 ? styles.darkTheme : styles.lightTheme} ></textarea>
+				onChange={(event) => setCode(event.target.value)}
+				style={theme === 1 ? styles.darkTheme : styles.lightTheme}
+			/>
+
 			<button className="buttonAnalise" onClick={onAnalyzer}>
-				<text>Analisar</text>
+				<label>Analisar</label>
 			</button>
-			<table hidden={!showTable}>
-				<tr>
-					<td>
-						<b>LEXEMA</b>
-					</td>
-					<td>
-						<b>TOKEN</b>
-					</td>
-				</tr>
+
+			<div hidden={!showTable} className="table">
+				<div className="header">
+					<h3 className="title">LEXEMA</h3>
+					<h3 className="title">TOKEN</h3>
+				</div>
 				{lexemes.length !== 0 ? null : (
-					<tr>
-						<tr>
-							<td>
-								Nenhum lexema encontrado
-							</td>
-						</tr>
-					</tr>
+					<div className="item">
+						Nenhum lexema encontrado
+					</div>
 				)}
-				{lexemes.map(item => {
-					return <tr key={item.id}>
-						<td>
+				{lexemes.map((item, index) => {
+					return <div key={index} className="item">
+						<label>
 							{item.lexeme}
-						</td>
-						<td>
+						</label>
+						<label>
 							{item.token}
-						</td>
-					</tr>
+						</label>
+					</div>
 				})}
-			</table>
+			</div>
 		</div>
 	)
 }
 
 const styles = {
-	darkTheme: {
-		backgroundColor: '#333',
-		color: '#FFF',
-	},
-	lightTheme: {
-		backgroundColor: '#FFF',
-		color: '#000',
-	},
 	switch: {
 		track: {
 			backgroundColor: '#AAA'

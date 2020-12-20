@@ -1,49 +1,118 @@
-body, html {
-    width: 100%;
-    height: 100%;
+* {
     margin: 0;
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-table {
-    background-color: #DDD;
-    width: 50%;
-    border: solid black;
-    font-family: Arial, Helvetica, sans-serif;
+body, html, :root {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    overflow-x: hidden;
 }
 
 .container {
     display: flex;
     flex-direction: column;
     width: 100%;
-    height: 500px;
-    padding: 10px;
+    min-height: 100vh;
     align-items: center;
     background-color:  #FFF;
+    position: relative;
+    margin-top: 2.5rem;
 }
 
-.codeSpace {
+.container .label-code {
+    margin-bottom: 0.5rem;
+}
+
+.container .code-space {
     width: 50%;
-    height: 80%;
-    max-width: 50%;
-    max-height: 80%;
-    min-width: 50%;
-    min-height: 80%;
+    height: 20rem;
+    resize: vertical;
     padding: 5px 10px;
     font-family: 'Courier New', Courier, monospace;
     font-size: 20px;
+    transition: 200ms;
+    border-radius: 0.3rem;
+
+    background-color: #fff;
+    color: #000;
 }
 
-.switchBox {
+.container .code-space.dark {
+    background-color: #333;
+    color: #FFF;
+}
+
+.container .code-space.error {
+    border: 2px solid #da1414;
+}
+
+.container .code-space::-webkit-scrollbar { width: 10px; height: 10px; }
+.container .code-space::-webkit-scrollbar-thumb:vertical { background-color: #aaa; }
+.container .code-space::-webkit-scrollbar-track:enabled { background-color: #fff; }
+.container .code-space::-webkit-scrollbar-thumb:horizontal { background-color: #fff; }
+.container .code-space.dark::-webkit-scrollbar-thumb:vertical { background-color: #666; }
+.container .code-space.dark::-webkit-scrollbar-track:enabled { background-color: #333; }
+.container .code-space.dark::-webkit-scrollbar-thumb:horizontal { background-color: #333; }
+
+.container .switchBox {
     width: 50%;
     margin: 10px;
     font-weight: bold;
+    margin-top: 1rem;
 }
 
-.buttonAnalise {
+.container .table {
+    background-color: #DDD;
+    width: 50%;
+    border: 1px solid #000;
+    border-radius: 0.3rem;
+    font-family: Arial, Helvetica, sans-serif;
+    margin-bottom: 4rem;
+    padding: 0.3rem;
+}
+
+.container .table .header {
+    display: flex;
+    width: 100%;
+    border-bottom: 1px solid #000;
+    margin-bottom: 0.3rem;
+}
+
+.container .table .header .title {
+    flex: 1;
+}
+
+.container .table .item {
+    display: flex;
+    width: 100%;
+    padding: 0.4rem 0;
+}
+
+.container .table .item + .item {
+    border-top: 1px dotted #000;
+}
+
+.container .table .item label {
+    flex: 1;
+}
+
+.container .buttonAnalise {
     margin: 10px;
     width: 15%;
-    border-radius: 5px;
+    min-width: 15rem;
+    height: 2rem;
+    border-radius: 0.2rem;
     background-color: black;
     color: white;
+    border: 0;
+    transition: 200ms;
+    cursor: pointer;
+}
+
+.container .buttonAnalise:hover {
+    filter: opacity(0.95);
 }
